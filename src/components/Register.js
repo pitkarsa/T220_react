@@ -1,0 +1,98 @@
+import React, { useState } from "react";
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+
+function Register() {
+
+  const { register, handleSubmit , formState:{errors}} = useForm();
+  const [passwordError, setPasswordError] = useState(null);
+  const navigate = useNavigate();
+
+  function doRegister(formData){
+    console.log(formData);
+    if(formData.password === formData.confirmPassword){
+      setPasswordError(null);
+        // send api call, to register user
+        fetch('http://localhost:8080/users/register',{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(formData)
+        })
+        .then(resp => 
+          {
+            if(resp.ok)
+              navigate("/login");
+          })
+    }
+    else{
+      setPasswordError("Password and Confirm Password must be same")
+    }
+  }
+
+  return (
+    <div className="row mt-2 ">
+      <div className="col-md-3 p-2 border rounded shadow mx-auto">
+        <form onSubmit={handleSubmit(doRegister)}>
+          <h2>Register</h2>
+          {
+            passwordError &&
+            <div className="alert alert-danger" role="alert">
+              {passwordError}
+            </div>
+          }
+          <div className="mb-3">
+            <label className="form-label">Username </label>
+            <input type="text" className="form-control"
+            {...register('username',
+              {                
+                required:'Username is required',
+                minLength:{value:3, message:'Username must contain  min 3 chars'}                
+              }
+            )} />
+            {
+            errors.username && 
+            <div className="alert alert-danger">
+             {errors?.username?.message}
+            </div>
+            }
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Email </label>
+            <input type="email" className="form-control"
+            {...register('email',
+              {                
+                required:'Email is required'               
+              }
+            )} />
+             {
+            errors.email && 
+            <div className="alert alert-danger">
+             {errors?.email?.message}
+            </div>
+            }
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input type="password" className="form-control" 
+            {...register('password')}/>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Confirm Password</label>
+            <input type="password" className="form-control" 
+            {...register('confirmPassword')}/>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Mobile</label>
+            <input type="text" className="form-control"
+              {...register('mobile')} />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Register
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Register;
