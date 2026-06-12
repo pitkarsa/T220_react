@@ -4,14 +4,31 @@ export default function Home() {
   const [allProducts, setAllProducts] = useState(null);
   
   useEffect(()=>{
-    fetch(`http://localhost:8080/search-products`)
-    .then(resp => resp.json())
+    fetch(`${process.env.REACT_APP_API_URL}/search-products`)
+    .then(resp => {
+      console.log(resp);      
+      return resp.json()
+    })
     .then(data => {
       console.log("Received data: ",data);
       setAllProducts(data);
       })
     .catch(err => console.log(err));
   }, []);
+
+  function deleteProduct(productId, productName){
+      const choice = window.confirm("Do you really want to delete "+productName+ "?");
+    if(choice){
+      fetch(`${process.env.REACT_APP_API_URL}/products/${productId}`,{
+        method:"DELETE"
+      })
+      .then(resp => {
+        console.log(resp);
+        
+        window.location.href='http://localhost:3000';
+      })
+    }
+  }
 
 
   return (
@@ -32,6 +49,12 @@ export default function Home() {
             <a href="#" className="btn btn-info">
               Details
             </a>
+            <button className="btn btn-warning ms-2"
+              
+            >Update</button>
+            <button className="btn btn-danger ms-2"
+              onClick={() => deleteProduct(product.id, product.name)}
+            >Delete</button>
           </div>
         </div>
       </div>

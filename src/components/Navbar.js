@@ -29,6 +29,11 @@ export default function Navbar() {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to={'/add-product'}>
+                Add Product
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to={'/register'}>
                 Register
               </Link>

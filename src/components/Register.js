@@ -13,7 +13,7 @@ function Register() {
     if(formData.password === formData.confirmPassword){
       setPasswordError(null);
         // send api call, to register user
-        fetch('http://localhost:8080/users/register',{
+        fetch(`${process.env.REACT_APP_API_URL}/users/register`,{
           method:"POST",
           headers:{"Content-Type":"application/json"},
           body: JSON.stringify(formData)
