@@ -3,25 +3,25 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom'; 
 
 export default function AddProduct() {
+    const token = localStorage.getItem("token");
     const {register, handleSubmit } = useForm();
     const navigate = useNavigate();
 
-    function addProduct(formData){
-        // console.log(formData); 
+    function addProduct(formData){       
         fetch(`${process.env.REACT_APP_API_URL}/products`,{
-            headers:{
-                "Content-Type":"application/json"
-            },
-            method:"POST",
-            body: JSON.stringify(formData)
-        })
-        // .then(resp => resp.json())
-        // .then(data => console.log(data)) 
-        .then(resp => {
-            if(resp.ok){
-                navigate("/");
-            }
-        })      
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${token}`
+                },
+                method:"POST",
+                body: JSON.stringify(formData)
+            })
+            .then(resp => {
+                if(resp.ok){
+                    navigate("/");
+                }
+            })  
+        
     }
 
   return (

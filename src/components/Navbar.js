@@ -2,6 +2,11 @@ import React from "react";
 import {Link} from 'react-router-dom';
 
 export default function Navbar() {
+  const userRoles = localStorage.getItem("userRoles");
+  function doLogout(){
+    localStorage.clear();
+    window.location.href="http://localhost:3000";
+  }
   return (
     <nav className="navbar navbar-expand-lg " 
     style={{'backgroundColor':'pink'}}>
@@ -28,22 +33,50 @@ export default function Navbar() {
                 Home
               </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to={'/add-product'}>
-                Add Product
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to={'/register'}>
-                Register
-              </Link>
-            </li>
-             <li className="nav-item">
-              <Link className="nav-link" to={'/login'}>
-                Login
-              </Link>
-            </li>
-            
+            { userRoles && userRoles.includes("ADMIN") &&
+            <>
+                <li className="nav-item">
+                  <Link className="nav-link" to={'/add-product'}>
+                    Add Product
+                  </Link>
+                </li>
+            </>
+            }
+            { userRoles && userRoles.includes("USER") &&
+            <>
+                <li className="nav-item">
+                  <Link className="nav-link" to={'/'}>
+                    My Cart
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to={'/'}>
+                    My Orders
+                  </Link>
+                </li>
+            </>
+            }
+            { !userRoles &&
+            <>
+              <li className="nav-item">
+                <Link className="nav-link" to={'/register'}>
+                  Register
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={'/login'}>
+                  Login
+                </Link>
+              </li>
+            </>
+            }
+            { userRoles &&                
+              <li className="nav-item">
+                <button className="nav-link" onClick={doLogout}>
+                  Logout
+                </button>
+              </li>            
+            }
           </ul>
           <form className="d-flex" role="search">
             <input

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export default function Home() {
   const [allProducts, setAllProducts] = useState(null);
+  const userRoles = localStorage.getItem("userRoles");
   
   useEffect(()=>{
     fetch(`${process.env.REACT_APP_API_URL}/search-products`)
@@ -49,12 +50,14 @@ export default function Home() {
             <a href="#" className="btn btn-info">
               Details
             </a>
-            <button className="btn btn-warning ms-2"
-              
-            >Update</button>
-            <button className="btn btn-danger ms-2"
-              onClick={() => deleteProduct(product.id, product.name)}
-            >Delete</button>
+            { userRoles && userRoles.includes("ADMIN") &&
+              <>
+              <button className="btn btn-warning ms-2">Update</button>
+              <button className="btn btn-danger ms-2"
+                onClick={() => deleteProduct(product.id, product.name)}
+              >Delete</button>
+            </>
+            }
           </div>
         </div>
       </div>
