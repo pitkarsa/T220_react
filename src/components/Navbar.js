@@ -45,7 +45,7 @@ export default function Navbar() {
             { userRoles && userRoles.includes("USER") &&
             <>
                 <li className="nav-item">
-                  <Link className="nav-link" to={'/'}>
+                  <Link className="nav-link" to={'/mycart'}>
                     My Cart
                   </Link>
                 </li>

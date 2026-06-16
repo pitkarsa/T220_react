@@ -31,6 +31,29 @@ export default function Home() {
     }
   }
 
+  function addToCart(productId){
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    const cartObj = {
+      "user":`${process.env.REACT_APP_API_URL}/users/${userId}`,
+      "product":`${process.env.REACT_APP_API_URL}/products/${productId}`
+    }
+    
+    fetch(`${process.env.REACT_APP_API_URL}/carts`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${token}`
+      },
+      body: JSON.stringify(cartObj)
+    })
+    .then(resp => {
+      //console.log(resp);
+      if(resp.ok)
+        alert("Product added to cart !!!");
+    });    
+  }
 
   return (
     <div className="row m-2">
@@ -50,6 +73,10 @@ export default function Home() {
             <a href="#" className="btn btn-info">
               Details
             </a>
+             <button href="#" className="btn btn-warning ms-3"
+             onClick={()=>addToCart(product.id)}>
+              Add To Cart
+            </button>
             { userRoles && userRoles.includes("ADMIN") &&
               <>
               <button className="btn btn-warning ms-2">Update</button>
