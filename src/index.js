@@ -9,6 +9,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import AddProduct from './components/AddProduct';
 import MyCart from './components/MyCart';
+import ConfirmOrder from './components/ConfirmOrder';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path:'mycart',
         element: <MyCart />
+      },
+      {
+        path:'confirm-order',
+        element: <ConfirmOrder />
       }
     ]
   }
