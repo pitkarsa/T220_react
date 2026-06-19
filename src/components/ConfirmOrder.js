@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {Link}  from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 export default function ConfirmOrder() {
   const [myCart, setMyCart] = useState(null);
   const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("userName");
+
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/users/${userId}/myCart`, {
@@ -29,6 +33,68 @@ export default function ConfirmOrder() {
       total += cart.product.price * cart.quantity;
     }
   }
+
+  const startPayment = async () => {
+        // 1. Create order
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/create-order`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount: total }),
+        });
+
+    const data = await res.json();
+    console.log("received data from SB: ", data);
+    if (!res.ok) {
+      alert("Order creation failed: " + JSON.stringify(data));
+      return;
+    }
+
+    // 2. Open Razorpay popup
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: "INR",
+      name: "My App",
+      description: "Payment Test",
+      order_id: data.orderId,
+
+      handler: async function (response) {
+        // 3. Verify payment using backend
+        fetch("http://localhost:8080/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(response),
+        })
+          .then((resp) => {
+            if (resp.ok) {
+              console.log(JSON.stringify(resp.data));
+              alert("Order Placed Successfully!");
+              navigate("/");
+            }
+            else {
+              alert("Payment Verification Failed!");
+            }
+            return resp.json();
+          })
+          .then((data) => console.log(data));
+      },
+
+      prefill: {
+        name: userName,
+        email: "test@example.com",
+        contact: "9769094244",
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   return (
     <div className="row">
@@ -68,7 +134,8 @@ export default function ConfirmOrder() {
         <h4>No of Products: {count}</h4>
         <h4>Total Price: {total}</h4>
         <Link className="btn btn-primary" to={'/mycart'}>Back</Link>
-        <Link className="ms-2 btn btn-success" to={'/make-payment'}>Proceed to Pay</Link>
+        <button className="ms-2 btn btn-success" 
+        onClick={startPayment}>Proceed to Pay</button>
       </div>
     </div>
   );
