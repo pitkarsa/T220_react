@@ -11,6 +11,7 @@ import AddProduct from './components/AddProduct';
 import MyCart from './components/MyCart';
 import ConfirmOrder from './components/ConfirmOrder';
 import MyOrders from './components/MyOrders';
+import OrderDetails from './components/OrderDetails';
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path:'myorders',
         element: <MyOrders />
+      },
+      {
+        path:'order-details',
+        element: <OrderDetails />
       }
     ]
   }
