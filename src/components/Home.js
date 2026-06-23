@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const [allProducts, setAllProducts] = useState(null);
   const userRoles = localStorage.getItem("userRoles");
-  
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
   useEffect(()=>{
     fetch(`${process.env.REACT_APP_API_URL}/search-products`)
     .then(resp => {
@@ -21,11 +24,13 @@ export default function Home() {
       const choice = window.confirm("Do you really want to delete "+productName+ "?");
     if(choice){
       fetch(`${process.env.REACT_APP_API_URL}/products/${productId}`,{
-        method:"DELETE"
+        method:"DELETE",
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
       })
       .then(resp => {
-        console.log(resp);
-        
+        console.log(resp);        
         window.location.href='http://localhost:3000';
       })
     }
@@ -70,16 +75,20 @@ export default function Home() {
               {product.description.substr(0,80)}...
             </p>
             <h4>Rs. {product.price}</h4>
-            <a href="#" className="btn btn-info">
+            <button href="#" className="btn btn-info"
+            onClick={()=>navigate('/product-details',{state:product})}
+            >
               Details
-            </a>
+            </button>
              <button href="#" className="btn btn-warning ms-3"
              onClick={()=>addToCart(product.id)}>
               Add To Cart
             </button>
             { userRoles && userRoles.includes("ADMIN") &&
               <>
-              <button className="btn btn-warning ms-2">Update</button>
+              <button className="btn btn-warning ms-2"
+              onClick={()=>navigate('/update-product',{state:product})}
+              >Update</button>
               <button className="btn btn-danger ms-2"
                 onClick={() => deleteProduct(product.id, product.name)}
               >Delete</button>
