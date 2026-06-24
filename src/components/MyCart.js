@@ -84,11 +84,15 @@ export default function MyCart() {
     }
   }
 
+  console.log(myCart);
+  
   return (
     <div className="row">
+      { myCart!==null && myCart.length >0 && 
+      <>
       <div className="col-md-8 mt-2 border rounded p-3">
         <h2 className="bg-warning rounded text-center">Product Details</h2>
-        {myCart &&
+       {
           myCart.map((cart) => (
             <div className="row" key={cart.id}>
               <div className="card mt-2 p-2">
@@ -128,7 +132,8 @@ export default function MyCart() {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+        }
       </div>
       <div className="col-md-4 mt-2 border rounded p-3">
         <h2 className="bg-warning rounded text-center">Summary</h2>
@@ -136,6 +141,14 @@ export default function MyCart() {
         <h4>Total Price: {total}</h4>
         <Link className="btn btn-success" to={'/confirm-order'}>Confirm Order</Link>
       </div>
+      </>
+      }
+      {
+        (myCart===null || myCart.length===0) &&
+        <div className="col-md-6 mx-auto mt-4 alert alert-info">
+          Yourcart is empty, click <Link to={'/'}>here</Link> to shop !!
+        </div>
+      }
     </div>
   );
 }

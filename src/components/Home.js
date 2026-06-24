@@ -3,9 +3,36 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const [allProducts, setAllProducts] = useState(null);
-  const userRoles = localStorage.getItem("userRoles");
-  const token = localStorage.getItem("token");
+  const [direction, setDirection] = useState('asc');
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [name, setName] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);  
+  const [allCategories, setAllCategories] = useState(null);
+
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    sarchProducts();
+  },[direction, selectedCategory])
+
+  function sarchProducts(){
+    const params = new URLSearchParams();
+    if(name){
+      params.append("name",name);
+    }
+    if(selectedCategory!==""){
+      params.append("category",selectedCategory);
+    }
+    if(maxPrice){
+      params.append("maxPrice",maxPrice);
+    }
+    if(direction){
+      params.append("sort",direction);
+    }
+    fetch(`${process.env.REACT_APP_API_URL}/search-products?${params.toString()}`)
+    .then(resp => resp.json())
+    .then(data => setAllProducts(data));
+  }
 
   useEffect(()=>{
     fetch(`${process.env.REACT_APP_API_URL}/search-products`)
@@ -18,49 +45,52 @@ export default function Home() {
       setAllProducts(data);
       })
     .catch(err => console.log(err));
+
+    fetch(`${process.env.REACT_APP_API_URL}/categories`)
+    .then(resp => resp.json())
+    .then(data => setAllCategories(data));
+
   }, []);
 
-  function deleteProduct(productId, productName){
-      const choice = window.confirm("Do you really want to delete "+productName+ "?");
-    if(choice){
-      fetch(`${process.env.REACT_APP_API_URL}/products/${productId}`,{
-        method:"DELETE",
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      })
-      .then(resp => {
-        console.log(resp);        
-        window.location.href='http://localhost:3000';
-      })
-    }
-  }
 
-  function addToCart(productId){
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-
-    const cartObj = {
-      "user":`${process.env.REACT_APP_API_URL}/users/${userId}`,
-      "product":`${process.env.REACT_APP_API_URL}/products/${productId}`
-    }
-    
-    fetch(`${process.env.REACT_APP_API_URL}/carts`,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${token}`
-      },
-      body: JSON.stringify(cartObj)
-    })
-    .then(resp => {
-      //console.log(resp);
-      if(resp.ok)
-        alert("Product added to cart !!!");
-    });    
-  }
 
   return (
+    <>
+    <div className="row m-2 ">
+      <div className="col-md-2">
+        <select className="form-select" 
+        onChange={(event)=> setSelectedCategory(event.target.value)}>
+          <option value="">All</option>
+          {
+            allCategories &&
+            allCategories.map(categoryName => 
+              <option value={categoryName} key={categoryName}>{categoryName}</option>
+            )
+          }
+        </select>
+      </div>
+      <div className="col-md-2">
+        <input type="text" placeholder="search by name" 
+        onChange={(event)=> setName(event.target.value)}
+        className="form-control"/>
+      </div>
+      <div className="col-md-2">
+        <input type="text" placeholder="enter highest price" 
+        onChange={(event)=>setMaxPrice(event.target.value)}
+        className="form-control"/>
+      </div>
+      <div className="col-md-2">
+        <button className="btn btn-link"
+        onClick={()=>setDirection(direction==='asc'?'desc':'asc')}>
+          {direction==='asc'?"High to Low":"Low to High"}
+        </button>
+      </div>
+      <div className="col-md-1">
+        <button className="btn btn-primary" onClick={sarchProducts}>
+          Search
+        </button>
+      </div>
+    </div>
     <div className="row m-2">
       {
         allProducts && allProducts.map( product =>      
@@ -75,30 +105,18 @@ export default function Home() {
               {product.description.substr(0,80)}...
             </p>
             <h4>Rs. {product.price}</h4>
-            <button href="#" className="btn btn-info"
+            <button  className="btn btn-info"
             onClick={()=>navigate('/product-details',{state:product})}
             >
               Details
             </button>
-             <button href="#" className="btn btn-warning ms-3"
-             onClick={()=>addToCart(product.id)}>
-              Add To Cart
-            </button>
-            { userRoles && userRoles.includes("ADMIN") &&
-              <>
-              <button className="btn btn-warning ms-2"
-              onClick={()=>navigate('/update-product',{state:product})}
-              >Update</button>
-              <button className="btn btn-danger ms-2"
-                onClick={() => deleteProduct(product.id, product.name)}
-              >Delete</button>
-            </>
-            }
+             
           </div>
         </div>
       </div>
         )
       }      
     </div>
+    </>
   );
 }
